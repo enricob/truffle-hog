@@ -1,9 +1,9 @@
 module TruffleHog
   VERSION = "0.0.3"
   
-  def self.parse_feed_urls(html, favor = :all)
-    rss_links  = scan_for_tag(html, "rss")
-    atom_links = scan_for_tag(html, "atom")
+  def self.parse_feed_urls(html, favor = :all, opts = {})
+    rss_links  = scan_for_tag(html, "rss", opts[:include_relative])
+    atom_links = scan_for_tag(html, "atom", opts[:include_relative])
 
     case favor
     when :all
@@ -15,11 +15,11 @@ module TruffleHog
     end
   end
   
-  def self.scan_for_tag(html, type)
-    urls(html, "link", type) + urls(html, "a", type)
+  def self.scan_for_tag(html, type, include_relative = false)
+    urls(html, "link", type, include_relative) + urls(html, "a", type, include_relative)
   end
   
-  def self.urls(html, tag, type)
+  def self.urls(html, tag, type, include_relative = false)
     tags = html.scan(/(<#{tag}.*?>)/).flatten
     feed_tags = collect(tags, type)
     feed_tags.map do |tag|
@@ -29,7 +29,11 @@ module TruffleHog
       else
         url = matches[1]
       end
-      url =~ /^http.*/ ? url : nil
+      if include_relative
+        url
+      else
+        url =~ /^http.*/ ? url : nil
+      end
     end.compact
   end
   
