@@ -36,6 +36,12 @@ describe "parsing html" do
     feed_urls.should_not include("http://feeds.feedburner.com/PaulDixExplainsNothing/in_body/rss")
   end
   
+  it "parses relative urls for feeds, when asked" do
+    input = File.read("#{File.dirname(__FILE__)}/relative.html")
+    feed_urls = TruffleHog.parse_feed_urls(input, :all, :include_relative => true)
+    feed_urls.should include("/in_head/rss.xml")
+  end
+  
   it "returns atom feeds if rss is favored, but none are found"
   it "returns rss feeds if atom is favored, but none are found"
   
