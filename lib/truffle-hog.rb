@@ -19,17 +19,17 @@ module TruffleHog
     urls(html, "link", type) + urls(html, "a", type)
   end
   
-  def self.urls(html, tag, type)
-    tags = html.scan(/(<#{tag}.*?>)/).flatten
+  def self.urls(html, tag, type, include_relative = false)
+    tags = html.scan(/(<#{tag}[^>]*>)/i).flatten
     feed_tags = collect(tags, type)
     feed_tags.map do |tag|
-      matches = tag.match(/.*href=['"](.*?)['"].*/)
+      matches = tag.match(/.*href=['"](.*?)['"].*/i)
       if matches.nil?
         url = ""
       else
         url = matches[1]
       end
-      url =~ /^http.*/ ? url : nil
+      url =~ /^http.*/i ? url : nil
     end.compact
   end
   
@@ -38,6 +38,6 @@ module TruffleHog
   end
   
   def self.feed?(html, type)
-    html =~ /.*type=['"]application\/#{type}\+xml['"].*/
+    html =~ /.*type=['"]application\/#{type}\+xml['"].*/i
   end
 end
