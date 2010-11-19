@@ -44,6 +44,24 @@ describe "parsing html" do
   
   it "returns atom feeds if rss is favored, but none are found"
   it "returns rss feeds if atom is favored, but none are found"
+
+  it "doesn't care about the case of the tag name or attribute" do
+    input = File.read(File.dirname(__FILE__) + "/different_case.html") 
+    feed_urls = TruffleHog.parse_feed_urls(input)
+    feed_urls.should include("http://www.techmeme.com/index.xml")
+  end
+
+  it "doesn't care about the case of the scheme when parsing absolute feed urls" do
+    input = File.read(File.dirname(__FILE__) + "/different_case.html")
+    feed_urls = TruffleHog.parse_feed_urls(input)
+    feed_urls.should include("HTTP://www.techmeme.com/atom.xml")
+  end
+
+  it "matches the href attribute across whitespace" do
+    input = File.read(File.dirname(__FILE__) + "/with_whitespace.html")
+    feed_urls = TruffleHog.parse_feed_urls(input)
+    feed_urls.should include("http://www.pauldix.net/in_head/atom.xml") 
+  end
   
   describe "regressions" do
     it "doesn't go into an infinite loop on this input" do
